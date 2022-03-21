@@ -34,15 +34,35 @@ const config = {
     filename: "[name].js", // name 默认是 main
     chunkFilename: "[name].chunk.js",
     publicPath: "/",
-    // library: undefined => Object.assign(exports, module.exports);
-    // library: xxx => exports[xxxx] = module.exports
-    // library: 'default',
-    // libraryExport: 'default',
-    // libraryTarget: 'commonjs',
 
-    libraryTarget: 'commonjs',
-    libraryExport: 'default',
-    library: 'ELEMENT',
+    // libraryExport 不依赖 libraryTarget 和 library
+    // libraryExport: "default", // xxx = ()({})[libraryExport];
+
+    // libraryTarget: 'this', // 表示全局变量 this[library] = ()({});
+    // libraryTarget: undefined, // 表示全局变量 var [library] = ()({});
+    // libraryTarget: 'window', // 表示全局变量 window[library] = ()();
+    // library: "ELEMENT", // 
+
+    // 导出全部暴露到全局，这种情况会报错!!! 
+    // libraryTarget: undefined,
+    // library: {},
+
+    // 导出暴露到 exports
+    libraryTarget: "commonjs", // exports[library] = ()({});
+    library: "ELEMENT",
+
+    // 全部导出
+    // libraryTarget: "commonjs",
+    // library: undefined, => Object.assign(exports, module.exports);
+
+
+  },
+  externals: {
+    axios: {
+      commonjs: "axios", // 如果此次打包时作为commonjs导出，window.axios 转为 require('axios')
+      root: "axios",
+    },
+    // axios: 'axios'
   },
   module: {
     rules: [

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import add from "./lib/add.js";
 import { min as mini } from "./lib/min.js";
 import age, { ageA } from "./lib/age.js";
