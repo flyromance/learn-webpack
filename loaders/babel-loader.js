@@ -1,7 +1,7 @@
 const babel = require("@babel/core");
 
 module.exports = function (source) {
-  console.log("js-loader");
+  // console.log("babel-loader");
   const loaderContext = this;
   const { code } = babel.transform(source, {
     plugins: [

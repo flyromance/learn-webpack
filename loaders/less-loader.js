@@ -1,7 +1,7 @@
 const less = require("less");
 
 module.exports = async function (source) {
-  console.log("less-loader");
+  // console.log("less-loader");
 
   const loaderContext = this;
   const cb = this.async();

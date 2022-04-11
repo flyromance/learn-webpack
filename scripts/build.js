@@ -11,15 +11,22 @@ const cssLoader = path.resolve("./loaders/css-loader");
 const CompilerPlugin = importCwd("./plugins/compiler-plugin");
 const CompilationPlugin = importCwd("./plugins/compilation-plugin");
 
+const testExterals = require("./node-externals");
+
 const config = {
-  mode: "none",
-  devtool: "none",
+  mode: "none", // 默认是production
+
+  // context: process.cwd(), // 默认是cwd，绝对
+
+  devtool: false, // 默认是 false 或 'none'，不生成source-map
+
   optimization: {
     minimize: false,
     // splitChunks: false,
     namedModules: true,
     namedChunks: true,
   },
+
   entry: "./src/index.js",
 
   // entry: "./src/tree-shaking.js",
@@ -38,32 +45,70 @@ const config = {
     // libraryExport 不依赖 libraryTarget 和 library
     // libraryExport: "default", // xxx = ()({})[libraryExport];
 
-    // libraryTarget: 'this', // 表示全局变量 this[library] = ()({});
-    // libraryTarget: undefined, // 表示全局变量 var [library] = ()({});
-    // libraryTarget: 'window', // 表示全局变量 window[library] = ()();
-    // library: "ELEMENT", // 
+    // libraryTarget 的值决定 library 的用途
 
-    // 导出全部暴露到全局，这种情况会报错!!! 
-    // libraryTarget: undefined,
-    // library: {},
+    // libraryTarget: undefined, // 默认就是var
+    // library: 'element',
 
-    // 导出暴露到 exports
-    libraryTarget: "commonjs", // exports[library] = ()({});
-    library: "ELEMENT",
+    // libraryTarget: 'var', // var [library] = ()({});
+    // library: 'element',
 
-    // 全部导出
+    // libraryTarget: "window", // window[library] = ()({});
+    // library: "element",
+
+    // libraryTarget: 'this', // this[library] = ()({});
+    // library: {
+    //   root: 'element'
+    // }
+
+    // libraryTarget: 'global', // global[library] = ()({});
+    // library: 'element',
+
+    // 具名导出
     // libraryTarget: "commonjs",
-    // library: undefined, => Object.assign(exports, module.exports);
+    // library: "ELEMENT", // exports[library] = ()({});
 
+    // 具名导出，同上
+    // libraryTarget: "commonjs",
+    // library: {
+    //   commonjs: "Element",
+    // },
 
+    // 具名导出全部
+    // libraryTarget: "commonjs",
+    // library: undefined, // Object.assign(exports, module.exports);
+
+    // 完全导出
+    // libraryTarget: 'commonjs2', // module.exports = ()({});
+    // library: 'xx', // 这个字段对于 commonjs2 来说没有用，会被忽略
+
+    libraryTarget: "umd",
+    library: 'element', // 所有的模式都用这个string
+    // umdNamedDefine: true, // 默认是false， define(["axios"], factory) => define('element', [...], factory)
+    // globalObject: 'typeof self !== \'undefined\' ? self : this', // 默认是 'window'
+    // library: { // 针对每种类型单独定义
+    //   root: "Element",
+    //   commonjs: "element",
+    //   amd: "element",
+    // },
   },
-  externals: {
-    axios: {
-      commonjs: "axios", // 如果此次打包时作为commonjs导出，window.axios 转为 require('axios')
-      root: "axios",
+
+  // 优先级比 resolve.alias 高
+  externals: [
+    {
+      axios: {
+        var: "axios.a", // 如果library为 var，替换为 module.exports = axios.a
+        window: "axios.b", // 如果library为 window， module.exports = window['axios.b']
+        this: "axios", // 如果library为 this， module.exports = this['axios.b']
+        global: "axios", // 如果library为 this， module.exports = window['axios.b']
+        commonjs: "axios.c", // 如果library为 commonjs，module.exports = require('axios.c');
+        commonjs2: "axios.d", // 如果library为 commonjs，module.exports = require('axios.d');
+        amd: "axios.e", // 如果library为 amd
+        root: "Axios", // 如果library为 umd
+      },
     },
-    // axios: 'axios'
-  },
+    testExterals(),
+  ],
   module: {
     rules: [
       {
