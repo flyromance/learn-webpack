@@ -83,7 +83,7 @@ const config = {
     // library: 'xx', // 这个字段对于 commonjs2 来说没有用，会被忽略
 
     libraryTarget: "umd",
-    library: 'element', // 所有的模式都用这个string
+    library: "element", // 所有的模式都用这个string
     // umdNamedDefine: true, // 默认是false， define(["axios"], factory) => define('element', [...], factory)
     // globalObject: 'typeof self !== \'undefined\' ? self : this', // 默认是 'window'
     // library: { // 针对每种类型单独定义
